@@ -30,14 +30,14 @@ jobs:
         run: npm run test:mocha
     - name : Building
       run: |
-        npm run build:electron
+        npm run build
       env:
         CI: true
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
     - name : Building for RPM
       if: ${{ runner.os == 'Linux' }}
       run: |
-        npm run build:electron:rpm
+        npm run build:deb
       env:
         CI: true
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
