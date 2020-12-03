@@ -1,0 +1,194 @@
+{
+	"name": "Polish",
+	"locale": "pl",
+	"translations": {
+		"menus": {
+			"File": {
+				"File": "Plik",
+				"OpenFolder": "Otwórz folder",
+				"OpenFile": "Otwórz plik",
+				"Projects": {
+					"Projects": "Projeky",
+					"OpenProjects": "Otwórz Projekty"
+				},
+				"Workspaces": {
+					"Workspaces": "Obszary robocze",
+					"OpenWorkspaces": "Otwórz obszary robocz",
+					"OpenFromFile": "Otwórz z pliku",
+					"AddFolderToWorkspace": "Dodaj folder do obszaru roboczego",
+					"SaveWorkspace": "Zapisz obszar roboczy"
+				}
+			},
+			"Edit": {
+				"Edit": "Edit",
+				"Undo": "Undo",
+				"Redo": "Redo",
+				"FontSize": {
+					"FontSize": "Font Size",
+					"Increase": "Increase",
+					"Decrease": "Decrease"
+				},
+				"Find": "Find",
+				"Replace": "Replace",
+				"FormatDocument": "Format document"
+			},
+			"Tools": {
+				"Tools": "Tools",
+				"OpenSettings": "Settings",
+				"OpenStore": "Store",
+				"Panels": {
+					"Panels": "Panels",
+					"NewPanel": "New Panel",
+					"CloseCurrentPanel": "Close current panel"
+				}
+			},
+			"View": {
+				"View": "View",
+				"ToggleSidebar": "Toggle Sidebar",
+				"ToggleSidepanel": "Toggle Sidepanel",
+				"ShowSidebar": "Show Sidebar",
+				"ShowSidepanel": "Show Sidepanel",
+				"HideSidebar": "Hide Sidebar",
+				"HideSidepanel": "Hide Sidepanel",
+				"ToggleTerminal": "Toggle Terminal"
+			},
+			"Window": {
+				"Window": "Window",
+				"Zoom": {
+					"Zoom": "Zoom",
+					"DefaultZoom": "Default",
+					"IncreaseZoom": "Increase",
+					"DecreaseZoom": "Decrease"
+				},
+				"Debug": {
+					"Debug": "Debug",
+					"OpenDebugWindow": "Open debug window"
+				},
+				"OpenDevTools": "Open dev tools"
+			},
+			"Help": {
+				"Help": "Help",
+				"Contact": "Contact",
+				"Social": "Social",
+				"Contributors": "Contributors",
+				"Blog": "Blog",
+				"Documentation": "Documentation",
+				"Website": "Website",
+				"SourceCode": "Source code",
+				"ReportBug": "Report bug",
+				"CheckForUpdates": "Check for updates",
+				"About": "About"
+			}
+		},
+		"windows": {
+			"Settings": {
+				"Settings": "Settings",
+				"Customization": {
+					"Customization": "Customization",
+					"Themes": "Themes",
+					"Iconpacks": "Iconpacks"
+				},
+				"Advanced": {
+					"Advanced": "Advanced",
+					"FileWatcher": "Files Watcher",
+					"Autocomplete": "Autocomplete",
+					"WrapLines": "Wrap lines",
+					"ManualConfig": {
+						"ManualConfig": "Manual config",
+						"EditConfiguration": "Edit configuration"
+					},
+					"Explorer": "Explorer",
+					"Editor": "Editor",
+					"GitIntegration": "Git Integration",
+					"LSPIntegration": "LSP Integration (experimental)",
+					"SourceTracker": "Source Tracker",
+					"Indentation": {
+						"Indentation": "Indentation",
+						"Space": "Space",
+						"Tab": "Tab"
+					},
+					"Configuration": "Configuration",
+					"RestartConfig": {
+						"RestartConfig": "Restart configuration"
+					}
+				},
+				"Languages": "Languages",
+				"Shortcuts": {
+					"Shortcuts": "Shortcuts",
+					"CreateCombo": "Create Combo"
+				},
+				"About": {
+					"About": "About",
+					"GravitonDescription": "Graviton is a cross platform editor."
+				}
+			},
+			"Store": {
+				"Store": "Store",
+				"Home": {
+					"Home": "Home"
+				},
+				"Installed": {
+					"Installed": "Installed"
+				},
+				"Install": "Install",
+				"Update": "Update",
+				"Uninstall": "Uninstall",
+				"AnyCompatibleVersion": "There isn't any compatible version."
+			},
+			"Welcome": {
+				"Welcome": "Welcome",
+				"RecentProjects": "Recent projects",
+				"RecentWorkspaces": "Recent workspaces",
+				"NewProject": "New project",
+				"OpenWorkspace": "Open a workspace",
+				"OpenFolder": "Open a folder"
+			}
+		},
+		"misc": {
+			"LastVersion": "Last version",
+			"InstalledVersion": "Installed version",
+			"About": "About",
+			"Skip": "Skip",
+			"Finish": "Finish",
+			"Continue": "Continue",
+			"GoBack": "Go back",
+			"Accept": "Accept",
+			"Cancel": "Cancel",
+			"version": "version",
+			"CopyPath": "Copy path",
+			"More": "More",
+			"Copy": "Copy",
+			"Rename": "Rename",
+			"Remove": "Remove",
+			"OpenLocation": "Open location",
+			"NewFile": "New file",
+			"NewFolder": "New folder",
+			"Paste": "Paste",
+			"Author": "Author",
+			"Exit": "Exit",
+			"Tip": "Tip",
+			"Yes": "Yes",
+			"No": "No",
+			"Close": "Close",
+			"Ignore": "Ignore",
+			"BuildDate": "Build date",
+			"By": "by"
+		},
+		"notifications": {
+			"appLanguageChanged": {
+				"appLanguageChanged": "App's language changed.",
+				"restartMessage": "Restart the app to fully apply the changes."
+			}
+		},
+		"dialogs": {
+			"tabsUnsavedWarning": {
+				"title": "There are unsaved files.",
+				"content": "Progress might be lost."
+			},
+			"restartConfig": {
+				"title": "Restart configuration",
+				"content": "Click continue to restart your configuration."
+			}
+		}
+	}
+}

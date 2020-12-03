@@ -1,0 +1,163 @@
+{
+	"name": "Türkçe",
+	"locale": "tr",
+	"translations": {
+		"menus": {
+			"File": {
+				"File": "Dosya",
+				"OpenFolder": "Klasör Aç",
+				"OpenFile": "Dosya Aç",
+				"Projects": {
+					"Projects": "Projeler",
+					"OpenProjects": "Projeleri Göster"
+				},
+				"Workspaces": {
+					"Workspaces": "Çalışma Alanları",
+					"OpenWorkspaces": "Çalışma Alanlarını Göster",
+					"OpenFromFile": "Dosyadan Aç",
+					"AddFolderToWorkspace": "Çalışma Alanına Dosya Ekle",
+					"SaveWorkspace": "Çalışma Alanını Kaydet"
+				}
+			},
+			"Edit": {
+				"Edit": "Düzenle",
+				"Undo": "Geri Al",
+				"Redo": "İleri Al",
+				"FontSize": {
+					"FontSize": "Yazı Tipi Boyutu",
+					"Increase": "Boyutu Arttır",
+					"Decrease": "Boyutu Düşür"
+				},
+				"Find": "Bul",
+				"Replace": "Yerleştir",
+				"FormatDocument": "Dosyayı Biçimlendir"
+			},
+			"Tools": {
+				"Tools": "Araçlar",
+				"OpenSettings": "Ayarlar",
+				"OpenStore": "Mağaza",
+				"Panels": {
+					"Panels": "Paneller",
+					"NewPanel": "Yeni Panel",
+					"CloseCurrentPanel": "Paneli Kapat"
+				}
+			},
+			"View": {
+				"View": "Görünüm",
+				"ToggleSidebar": "Kenar Çubuğunu Gizle/Göster",
+				"ToggleSidepanel": "Kenar Panelini Gizle/Göster",
+				"ShowSidebar": "Kenar Çubuğunu Göster",
+				"ShowSidepanel": "Kenar Panelini Göster",
+				"HideSidebar": "Kenar Çubuğunu Gizle",
+				"HideSidepanel": "Kenar Panelini Gizle"
+			},
+			"Window": {
+				"Window": "Pencere",
+				"Zoom": {
+					"Zoom": "Yakınlaştır",
+					"DefaultZoom": "Normal",
+					"IncreaseZoom": "Yakınlaştır",
+					"DecreaseZoom": "Uzaklaştır"
+				},
+				"Debug": {
+					"Debug": "Hata Ayıklama",
+					"OpenDebugWindow": "Hata Ayıklama Penceresi Aç"
+				},
+				"OpenDevTools": "Geliştirici Araçlarını Aç"
+			},
+			"Help": {
+				"Help": "Yardım",
+				"Contact": "İletişim",
+				"Social": "Sosyal Medya",
+				"Contributors": "Emeği Geçenler",
+				"Blog": "Blog",
+				"Documentation": "Dokümantasyon",
+				"Website": "İnternet Sitesi",
+				"SourceCode": "Kaynak Kodu",
+				"CheckForUpdates": "Güncellemeleri Kontrol Et",
+				"About": "Hakkında"
+			}
+		},
+		"windows": {
+			"Settings": {
+				"Settings": "Ayarlar",
+				"Customization": {
+					"Customization": "Özelleştirme",
+					"Themes": "Temalar",
+					"Iconpacks": "İkonlar"
+				},
+				"Advanced": {
+					"Advanced": "Gelişmiş",
+					"FileWatcher": "Dosya İzleyici",
+					"Autocomplete": "Otomatik Tamamlayıcı",
+					"WrapLines": "Satırları Kaydır",
+					"Indentation": {
+						"Indentation": "Girinti Oluşturma",
+						"Space": "Boşluk",
+						"Tab": "Tab"
+					}
+				},
+				"Languages": "Diller",
+				"About": {
+					"About": "Hakkında",
+					"GravitonDescription": "Graviton, çok platformlu bir metin düzenleyicisidir."
+				}
+			},
+			"Store": {
+				"Store": "Mağaza",
+				"Home": {
+					"Home": "Ana Sayfa"
+				},
+				"Installed": {
+					"Installed": "Yüklü"
+				},
+				"Install": "Yükle",
+				"Update": "Güncelle",
+				"Uninstall": "Kaldır",
+				"AnyCompatibleVersion": "Herhangi Bir Uyumlu Sürüm"
+			},
+			"Welcome": {
+				"Welcome": "Hoşgeldin",
+				"RecentProjects": "Son Projeler",
+				"RecentWorkspaces": "Son Çalışma Alanları",
+				"NewProject": "Yeni Proje",
+				"OpenWorkspace": "Çalışma Alanı Aç",
+				"OpenFolder": "Klasör Aç"
+			}
+		},
+		"misc": {
+			"LastVersion": "Son Sürüm",
+			"InstalledVersion": "Yüklü Sürüm",
+			"About": "Hakkında",
+			"Skip": "Geç",
+			"Finish": "Bitir",
+			"Continue": "Devam Et",
+			"GoBack": "Geri",
+			"Accept": "Kabul Et",
+			"Cancel": "İptal Et",
+			"version": "Sürüm",
+			"CopyPath": "Konumu Kopyala",
+			"More": "Daha Fazla",
+			"Copy": "Kopyala",
+			"Rename": "Yeniden Adlandır",
+			"Remove": "Kaldır",
+			"OpenLocation": "Konumu Aç",
+			"NewFile": "Yeni Dosya",
+			"NewFolder": "Yeni Klasör",
+			"Paste": "Yapıştır",
+			"Author": "Yapımcı",
+			"Exit": "Çıkış",
+			"Tip": "İpucu",
+			"Yes": "Evet",
+			"No": "Hayır",
+			"Close": "Kapat",
+			"Ignore": "Yoksay"
+		},
+		"notifications": {
+			"appLanguageChanged": {
+				"appLanguageChanged": "Graviton'un dili başarıyla değiştirildi!",
+				"restartMessage": "Değişiklerin uygulanması için Graviton'u yeniden başlatın!"
+			}
+		}
+	}
+}

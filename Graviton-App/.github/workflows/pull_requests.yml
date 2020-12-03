@@ -1,0 +1,30 @@
+name: Pull requests
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest , macos-latest]
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Installing dependencies
+      run: |
+        npm i
+    - name: Building UI
+      run: |
+        npm run script:build:electron
+        npm run build:webpack
+    - name: Running unit tests
+      uses: GabrielBB/xvfb-action@v1.2
+      with:
+        run: npm run test:mocha
