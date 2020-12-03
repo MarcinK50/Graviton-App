@@ -14,9 +14,10 @@ import getFormat from '../utils/format_parser'
 import queryString from 'query-string'
 import { addPluginToRegistryStatically } from 'PluginLoader'
 import { installPluginFromGVP, installPluginFromURL } from './store/utils/install.plugin'
+import ExperimentalFeatureDialog from './dialogs/feature_experimental'
 import './environment.inspectors/npm'
 import './project.services/npm'
-import './side.panels/files.explorer'
+import './side.panels/files_explorer'
 import './side.panels/env.explorer'
 import './side.panels/source_tracker'
 import './shortcuts'
@@ -28,6 +29,7 @@ import '../collections/codemirror'
 import '../collections/plugins'
 import '../utils/test'
 import './terminal_shells/local'
+import '../core/workspaces'
 
 const { fs } = Core
 
@@ -38,16 +40,28 @@ export default async function init() {
 
 	addPluginToRegistryStatically(Arctic)
 	addPluginToRegistryStatically(Night)
-	addPluginToRegistryStatically({
-		PATH: path.join(__dirname, '../../../Graviton'),
-		...GravitonIconpack,
-	})
 
 	if (RunningConfig.data.isBrowser) {
+		addPluginToRegistryStatically({
+			PATH: 'Graviton',
+			...GravitonIconpack,
+		})
+
 		const RemoteExports = await import('../../../pluginsBrowserDist/remote-plugin/index')
 		const RemotePkg = await import('../../../pluginsBrowserDist/remote-plugin/package.json')
 
 		addPluginToRegistryStatically(RemotePkg, RemoteExports)
+	} else {
+		StaticConfig.keyChanged('experimentalEditorLSP', value => {
+			if (value) {
+				ExperimentalFeatureDialog().launch()
+			}
+		})
+
+		addPluginToRegistryStatically({
+			PATH: path.join(__dirname, '../../../Graviton'),
+			...GravitonIconpack,
+		})
 	}
 
 	RunningConfig.emit('appLoaded')

@@ -3,9 +3,9 @@ import FilesExplorer from '../../constructors/files.explorer'
 import ContextMenu from '../../constructors/contextmenu'
 import Tab from '../../constructors/tab'
 import Editor from '../../constructors/editor'
-import newDirectoryDialog from '../../defaults/dialogs/new.directory'
+import newDirectoryDialog from '../../defaults/dialogs/new_directory'
 import WarningDialog from '../../utils/dialogs/warning'
-import InputDialog from '../../utils/dialogs/dialog.input'
+import InputDialog from '../../utils/dialogs/dialog_input'
 import StaticConfig from 'StaticConfig'
 import PluginsRegistry from 'PluginsRegistry'
 import RunningConfig from 'RunningConfig'
@@ -19,7 +19,7 @@ import Core from 'Core'
 const {
 	electron: { clipboard },
 } = Core
-import path from 'path'
+import * as path from 'path'
 import PuffinElement from '../../types/puffin.element'
 import { PuffinState } from '../../types/puffin.state'
 import { getFileIcon } from '../../utils/get_file_icon'
@@ -81,7 +81,7 @@ class Item {
 			<FileItem class="${classSelector} level="${level}" id="${IDItem}" fullpath="${fullPath}" itemClass="${classSelector}" isFolder="${isFolder}" parentFolder="${projectPath}" mounted="${mounted}" selected="false" opened="false" animated="${animateItem}" :drop="${dragDroppedListener}" >
 				<button ishidden="${
 					this.itemIsHidden
-				}" draggable="true" itemClass="${classSelector}" :dragover="${dragginInListener}" :dragstart="${draggingListener}" :click="${clickListener}" :contextmenu="${contextListener}" title="${hint}">
+				}" draggable="true" :dragstart="${startDrag}" itemClass="${classSelector}" :dragover="${dragginInListener}" :dragstart="${draggingListener}" :click="${clickListener}" :contextmenu="${contextListener}" title="${hint}">
 					<ArrowIcon draggable="false" itemClass="${classSelector}"  class="arrow" style="${isFolder ? '' : 'opacity:0;'}"/>
 					<img draggable="false" itemClass="${classSelector}" class="icon" src="${this._getIconSource()}"/>
 					<span itemClass="${classSelector}" originalName="${this.itemName}">${this.itemName}</span>
@@ -90,6 +90,11 @@ class Item {
 				</button>
 			</FileItem>
 		`
+
+		function startDrag(e: DragEvent): void {
+			e.dataTransfer.setData('type', 'explorerItem')
+			e.dataTransfer.setData('filePath', self.itemPath)
+		}
 
 		function handleTextDecorator() {
 			if (self.itemDecorator) {
@@ -223,62 +228,75 @@ class Item {
 	 */
 	private _contextListener(event: MouseEvent): void {
 		if (this.isFolder) {
+			const folderContextMenu = [
+				{
+					label: 'misc.NewFolder',
+					action: () => {
+						newDirectoryDialog({
+							isFolder: true,
+							parentDirectory: this.itemPath,
+							container: this.itemElement,
+							explorerState: this.explorerState,
+							explorerProvider: this.explorerProvider,
+						})
+					},
+				},
+				{
+					label: 'misc.NewFile',
+					action: () => {
+						newDirectoryDialog({
+							isFolder: false,
+							parentDirectory: this.itemPath,
+							container: this.itemElement,
+							explorerState: this.explorerState,
+							explorerProvider: this.explorerProvider,
+						})
+					},
+				},
+				{},
+				{
+					label: 'misc.Rename',
+					action: () => {
+						this._rename()
+					},
+				},
+				{},
+				{
+					label: 'misc.Remove',
+					action: () => {
+						if (this.itemLevel !== 0) {
+							this._remove()
+						}
+					},
+				},
+				{},
+				{
+					label: 'misc.CopyPath',
+					action: () => {
+						clipboard.writeText(this.itemPath)
+					},
+				},
+				{
+					label: 'misc.OpenLocation',
+					action: () => {
+						openLocation(this.itemPath)
+					},
+				},
+			]
+
+			if (this.itemLevel === 0) {
+				folderContextMenu.splice(7, 0, {
+					label: 'misc.RemoveFromWorkspace',
+					action: () => {
+						RunningConfig.emit('removeFolderFromRunningWorkspace', {
+							folderPath: this.itemPath,
+						})
+					},
+				})
+			}
+
 			new ContextMenu({
-				list: [
-					{
-						label: 'misc.NewFolder',
-						action: () => {
-							newDirectoryDialog({
-								isFolder: true,
-								parentDirectory: this.itemPath,
-								container: this.itemElement,
-								explorerState: this.explorerState,
-								explorerProvider: this.explorerProvider,
-							})
-						},
-					},
-					{
-						label: 'misc.NewFile',
-						action: () => {
-							newDirectoryDialog({
-								isFolder: false,
-								parentDirectory: this.itemPath,
-								container: this.itemElement,
-								explorerState: this.explorerState,
-								explorerProvider: this.explorerProvider,
-							})
-						},
-					},
-					{},
-					{
-						label: 'misc.Rename',
-						action: () => {
-							this._rename()
-						},
-					},
-					{},
-					{
-						label: 'misc.Remove',
-						action: () => {
-							if (this.itemLevel !== 0) {
-								this._remove()
-							}
-						},
-					},
-					{},
-					{
-						label: 'misc.CopyPath',
-						action: () => {
-							clipboard.writeText(this.itemPath)
-						},
-					},
-					{
-						label: 'misc.OpenLocation',
-						action: () => {
-							openLocation(this.itemPath)
-						},
-					},
-				],
+				list: folderContextMenu,
 				parent: this.itemElement,
 				event,
 			})
@@ -641,6 +659,9 @@ class Item {
 		if (this.itemLevel == 0) {
 			removedProjectFolderListener = RunningConfig.on('removeFolderFromRunningWorkspace', ({ folderPath }) => {
 				if (folderPath == this.itemPath) {
+					if (RunningConfig.data.workspaceConfig.folders.length === 0) {
+						this.explorerContainer.parentElement.setAttribute('hasFiles', 'false')
+					}
 					this.explorerState.emit('closedFolder', this.itemPath)
 					this.itemState.emit('destroyed')
 				}

@@ -4,19 +4,30 @@ import { state } from '@mkenzo_8/puffin'
 import { EditorClient } from '../../constructors/editorclient'
 import StaticConfig from 'StaticConfig'
 import RunningConfig from 'RunningConfig'
+import isBrowser from '../../utils/is_browser'
+
+let LspWsConnection
+let CodeMirrorAdapter
 
 import 'lsp-codemirror/lib/codemirror-lsp.css'
 import 'lsp-codemirror/lib/icons/rect.svg'
 
-import { LspWsConnection, CodeMirrorAdapter } from 'lsp-codemirror'
 import DiffMatchPatch from 'diff-match-patch'
 
-let CustomWindow: any = window
-// codemirror's merge addon needs this globals
-CustomWindow.diff_match_patch = DiffMatchPatch
-CustomWindow.DIFF_EQUAL = 0
-CustomWindow.DIFF_INSERT = 1
-CustomWindow.DIFF_DELETE = -1
+if (!isBrowser) {
+	let CustomWindow: any = window
+
+	// CodeMirror Merge Addon needs defined globally
+	CustomWindow.diff_match_patch = DiffMatchPatch
+	CustomWindow.DIFF_EQUAL = 0
+	CustomWindow.DIFF_INSERT = 1
+	CustomWindow.DIFF_DELETE = -1
+
+	import('lsp-codemirror').then(lspCodemirror => {
+		LspWsConnection = lspCodemirror.LspWsConnection
+		CodeMirrorAdapter = lspCodemirror.CodeMirrorAdapter
+	})
+}
 
 import 'codemirror/addon/search/search'
 import 'codemirror/addon/merge/merge'
@@ -320,58 +331,31 @@ const CodemirrorClient = new EditorClient(
 					mark: true,
 					markTagPairs: true,
 					previewOpenTag: false,
-					config: {
-						markup: {
-							snippets: {
-								foo: 'ul.nav>li',
-							},
-						},
-					},
+					config: {},
 				},
 				gutters: ['CodeMirror-lsp'],
 			})
 
-			/*
-			 * Append a custom class to every inserted or deleted character's parent
-			 */
-			function fixLines() {
-				let pastLine = null
-
-				//Update inserted lines
-				for (const char of document.getElementsByClassName('CodeMirror-merge-r-inserted') as any) {
-					const line = char.parentElement.parentElement
-					if (pastLine !== line) line.classList.add('CodeMirror-merge-line-inserted')
-					pastLine = line
-				}
-
-				//Update removed lines
-				for (const char of document.getElementsByClassName('CodeMirror-merge-r-deleted') as any) {
-					const line = char.parentElement.parentElement
-					if (pastLine !== line) line.classList.add('CodeMirror-merge-line-deleted')
-					pastLine = line
-				}
-			}
-
-			setTimeout(() => {
-				//Wait 250ms for lines to be renderer
-				fixLines()
-			}, 250)
-
 			if (options) {
 				//Only when is in merge mode
 				if (options.merge) {
+					setTimeout(() => {
+						//Wait 250ms for lines to be renderer
+						highlightModifiedLines()
+					}, 250)
+
 					const { edit, right } = CodemirrorEditor
 
 					//Update lines on changes
 					edit.on('changes', () => {
 						setTimeout(() => {
-							fixLines()
+							highlightModifiedLines()
 						}, 250)
 					})
 
 					//Update lines when scrolling
 					edit.on('scroll', () => {
-						fixLines()
+						highlightModifiedLines()
 					})
 
 					edit.on('optionChange', (cm, option) => {
@@ -382,14 +366,14 @@ const CodemirrorClient = new EditorClient(
 					edit.on('refresh', () => {
 						right.orig.refresh()
 						setTimeout(() => {
-							fixLines()
+							highlightModifiedLines()
 						}, 300)
 					})
 					;[edit, right.orig].forEach(cm => {
 						//Update lines on cursor activity on both instances
 						cm.on('cursorActivity', () => {
 							setTimeout(() => {
-								fixLines()
+								highlightModifiedLines()
 							}, 1)
 						})
 					})
@@ -547,6 +531,9 @@ const CodemirrorClient = new EditorClient(
 		replaceRange({ instance, from, to, text }) {
 			instance.replaceRange(text, from, to, '+move')
 		},
+		pasteContent({ instance, from, text }) {
+			instance.replaceRange(text, from)
+		},
 		getRange({ instance, from, to }) {
 			return instance.getRange(from, to)
 		},
@@ -627,7 +614,6 @@ const CodemirrorClient = new EditorClient(
 			instance.pstate.on('displayContextMenu', action)
 		},
 		blur({ instance }) {
-			console.log(instance)
 			setTimeout(() => {
 				instance.getInputField().blur()
 			}, 1)
@@ -675,6 +661,27 @@ function handleCMAutocomplete(CodemirrorEditor, { fancy }): void {
 				})
 			}
 		})
+	}
+}
+
+/*
+ * Append a custom class to every inserted or deleted character's parent
+ */
+function highlightModifiedLines() {
+	let pastLine = null
+
+	//Update inserted lines
+	for (const char of document.getElementsByClassName('CodeMirror-merge-r-inserted') as any) {
+		const line = char.parentElement.parentElement
+		if (pastLine !== line) line.classList.add('CodeMirror-merge-line-inserted')
+		pastLine = line
+	}
+
+	//Update removed lines
+	for (const char of document.getElementsByClassName('CodeMirror-merge-r-deleted') as any) {
+		const line = char.parentElement.parentElement
+		if (pastLine !== line) line.classList.add('CodeMirror-merge-line-deleted')
+		pastLine = line
 	}
 }
 

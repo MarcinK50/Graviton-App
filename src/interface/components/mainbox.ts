@@ -1,5 +1,5 @@
 import { element, render } from '@mkenzo_8/puffin'
-import { css as style } from 'emotion'
+import { css as style } from '@emotion/css'
 import StaticConfig from 'StaticConfig'
 import RunningConfig from 'RunningConfig'
 import Terminal from './terminal'
@@ -17,12 +17,14 @@ export default function MainBox() {
 	function mounted() {
 		if (StaticConfig.data.appShowTerminal) {
 			this.style.display = 'block'
+			document.getElementById('panels_stack').style.height = '70%'
 		} else {
 			this.style.display = 'none'
 		}
 		StaticConfig.keyChanged('appShowTerminal', (show: boolean) => {
 			if (show) {
 				this.style.display = 'block'
+				document.getElementById('panels_stack').style.height = '70%'
 			} else {
 				this.style.display = 'none'
 			}

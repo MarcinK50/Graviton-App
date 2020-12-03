@@ -12,7 +12,7 @@
 			"Foreground": "black",
 			"Selection": "rgb(180,180,180,0.6)",
 			"Cursor": "black",
-			"Selection": "rgb(100,100,100,0.6",
+			"CursorAccent": "black",
 			"Black": "",
 			"Red": "",
 			"Green": "",
@@ -158,6 +158,19 @@
 				"Background": "white",
 				"Text": "black",
 				"Border": "#CFCFCF"
+			}
+		},
+		"topmenu": {
+			"Button": {
+				"Background": "transparent",
+				"Hovering": {
+					"Background": "rgb(212,212,212)"
+				},
+				"Active": {
+					"Background": "#0066FF",
+					"Text": "white"
+				},
+				"Text": "black"
 			}
 		},
 		"explorer": {
@@ -319,6 +332,15 @@
 				"Desactivated": {
 					"Background": "rgba(150,150,150,0.8)"
 				}
+			}
+		},
+		"slider": {
+			"Background": "rgba(220,220,220,0.3)",
+			"Thumb": {
+				"Background": "#0066FF"
+			},
+			"Filled": {
+				"Background": "#0066FF"
 			}
 		},
 		"loader": {

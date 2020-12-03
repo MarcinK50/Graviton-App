@@ -1,6 +1,6 @@
 import { element, state, render } from '@mkenzo_8/puffin'
 import { Button } from '@mkenzo_8/puffin-drac'
-import { css as style } from 'emotion'
+import { css as style } from '@emotion/css'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import * as XtermWebfont from 'xterm-webfont'
@@ -36,9 +36,14 @@ const styled = style`
 		color: var(--textColor);
 		background: var(--selectBackground);
 		border-radius: 4px;
-		&:hover{
+		:hover{
 			transition: 0.1s;
-			box-shadow: 0px 1px 5px rgba(0,0,0,0.2);
+			box-shadow: 0px 1px 5px rgba(0,0,0,0.15);
+		}
+		:focus{
+			transition: 0.1s;
+			box-sizing: border-box;
+			box-shadow:0px 1px 5px rgba(0,0,0,0.20);
 		}
 		& option {
 			color: var(--contextmenuButtonText);
@@ -251,11 +256,6 @@ function XtermTerminal({ shell = null } = {}) {
 			xtermInstance.loadAddon(fit)
 			xtermInstance.loadAddon(new XtermWebfont())
 
-			xtermInstance.onData(data => {
-				// Emit the data event when the terminal is being written
-				xtermState.emit('data', data)
-			})
-
 			xtermState.on('write', data => {
 				// Write to the terminal when the shell sends an output
 				xtermInstance.write(data)
@@ -264,6 +264,16 @@ function XtermTerminal({ shell = null } = {}) {
 			xtermState.on('breakLine', () => {
 				//Break the line on the xterm
 				xtermInstance.writeln('')
+			})
+
+			xtermInstance.onData(data => {
+				// Emit the data event when the terminal is being written
+				xtermState.emit('data', data)
+			})
+
+			xtermInstance.onResize(args => {
+				// Emit the resize event
+				xtermState.emit('resize', args)
 			})
 
 			xtermInstance.onKey(e => {

@@ -1,20 +1,33 @@
 import { element, style, render, lang } from '@mkenzo_8/puffin'
 import { Titles } from '@mkenzo_8/puffin-drac'
 import Window from '../../constructors/window'
-import SideMenu from '../../components/window/side.menu'
+import SideMenu from '../../components/window/side_menu'
 import SideMenuSearcher from '../../components/window/side.menu.searcher'
+import SideMenuPage from '../../components/window/side_menu_page'
+
+import TopMenu from '../../components/window/top_menu'
 
 import CustomizationScheme from '../settings/pages/customization'
 import AdvancedScheme from '../settings/pages/advanced'
 import ShortcutsScheme from '../settings/pages/shortcuts'
 import LanguagesScheme from '../settings/pages/languages'
-import AboutScheme from '../settings/pages/about'
+import AboutPage from '../settings/pages/about'
 
 import getScheme from '../../utils/get_scheme'
 
 import { WindowInstance } from 'Types/window'
 
 export default function Settings(): WindowInstance {
+	const SettinsgPage = getScheme(CustomizationScheme())
+	const AdvancePage = () =>
+		getScheme(
+			AdvancedScheme({
+				closeWindow: () => SettingsWindow.close(),
+			}),
+		)
+	const ShortcutsPage = () => getScheme(ShortcutsScheme())
+	const LanguagesPage = () => getScheme(LanguagesScheme())
+
 	const SettingsWindow = new Window({
 		title: 'settings',
 		component: SettingsPage,
@@ -26,9 +39,11 @@ export default function Settings(): WindowInstance {
 				H1: Titles.h1,
 				SideMenu,
 				SideMenuSearcher,
+				SideMenuPage,
+				TopMenu,
 			},
 		})`
-			<SideMenu default="customization">
+			<SideMenu default="customization" schemes="${[CustomizationScheme, AdvancedScheme]}">
 				<div>
 					<H1 lang-string="windows.Settings.Settings"/>
 					<SideMenuSearcher/>
@@ -39,25 +54,11 @@ export default function Settings(): WindowInstance {
 					<label to="about" lang-string="windows.Settings.About.About"/>
 				</div>
 				<div>
-					<div href="customization">
-						${getScheme(CustomizationScheme())}
-					</div>
-					<div href="advanced">
-						${getScheme(
-							AdvancedScheme({
-								closeWindow: () => SettingsWindow.close(),
-							}),
-						)}
-					</div>
-					<div href="shortcuts">
-						${getScheme(ShortcutsScheme())}
-					</div>
-					<div href="languages">
-						${getScheme(LanguagesScheme())}
-					</div>
-					<div href="about">
-						${getScheme(AboutScheme())}
-					</div>
+					<div href="customization">${SettinsgPage}</div>
+					<SideMenuPage href="advanced" component="${AdvancePage}"/>
+					<SideMenuPage href="shortcuts" component="${ShortcutsPage}"/>
+					<SideMenuPage href="languages" component="${LanguagesPage}"/>
+					<SideMenuPage href="about" component="${AboutPage}"/>
 				</div>
 			</SideMenu>
 		`

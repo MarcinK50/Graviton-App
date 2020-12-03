@@ -4,6 +4,8 @@ import * as path from 'path'
  * This contains the default Configuration of a just-installed Graviton version.
  */
 
+const isMac = process.platform == 'darwin'
+
 const defaultConfig = {
 	config: {
 		appTheme: 'Arctic',
@@ -25,34 +27,34 @@ const defaultConfig = {
 		appEnableProjectInspector: true,
 		appShortcuts: {
 			SaveCurrentFile: {
-				combos: ['Ctrl+S'],
+				combos: [isMac ? 'CmdOrCtrl+S' : 'Ctrl+S'],
 			},
 			NewPanel: {
-				combos: ['Ctrl+N'],
+				combos: [isMac ? 'CmdOrCtrl+N' : 'Ctrl+N'],
 			},
 			CloseCurrentTab: {
-				combos: ['Ctrl+T'],
+				combos: [isMac ? 'CmdOrCtrl+T' : 'Ctrl+T'],
 			},
 			CloseCurrentPanel: {
-				combos: ['Ctrl+L'],
+				combos: [isMac ? 'CmdOrCtrl+L' : 'Ctrl+L'],
 			},
 			OpenEditorCommandPrompt: {
-				combos: ['Ctrl+I'],
+				combos: [isMac ? 'CmdOrCtrl+I' : 'Ctrl+I'],
 			},
 			OpenExplorerCommandPrompt: {
-				combos: ['Ctrl+O'],
+				combos: [isMac ? 'CmdOrCtrl+O' : 'Ctrl+O'],
 			},
 			OpenCommandPrompt: {
-				combos: ['Ctrl+P'],
+				combos: [isMac ? 'CmdOrCtrl+P' : 'Ctrl+P'],
 			},
 			IterateCurrentPanelTabs: {
-				combos: ['Ctrl+Tab'],
+				combos: [isMac ? 'CmdOrCtrl+Tab' : 'Ctrl+Tab'],
 			},
 			IncreaseEditorFontSize: {
-				combos: ['Ctrl+Up', 'Ctrl+ScrollUp'],
+				combos: [isMac ? 'CmdOrCtrl+Up' : 'Ctrl+Up', 'Ctrl+ScrollUp'],
 			},
 			DecreaseEditorFontSize: {
-				combos: ['Ctrl+Down', 'Ctrl+ScrollDown'],
+				combos: [isMac ? 'CmdOrCtrl+Down' : 'Ctrl+Down', 'Ctrl+ScrollDown'],
 			},
 			CloseCurrentWindow: {
 				combos: ['Esc'],
@@ -61,7 +63,7 @@ const defaultConfig = {
 				combos: [],
 			},
 			FocusExplorerPanel: {
-				combos: ['Ctrl+E'],
+				combos: [isMac ? 'CmdOrCtrl+E' : 'Ctrl+E'],
 			},
 		},
 		miscEnableLiveUpdateInManualConfig: true,
@@ -82,6 +84,7 @@ const defaultConfig = {
 		appShowTerminal: false,
 		experimentalEditorLSP: false,
 		experimentalSourceTracker: false,
+		appCheckWorkspaceExistsWhenOpeningFolders: true,
 	},
 }
 if (process.platform === 'darwin') {

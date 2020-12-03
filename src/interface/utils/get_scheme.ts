@@ -4,6 +4,7 @@ import Switch from '../components/switch'
 import { Titles, RadioGroup, Button, Text } from '@mkenzo_8/puffin-drac'
 import StaticConfig from 'StaticConfig'
 import Section from '../components/window/section'
+import Slider from '../components/slider'
 
 const getComp = (scheme: any) => {
 	let result: any = {
@@ -28,15 +29,15 @@ function getItemHooks() {
 
 export default function getScheme(scheme) {
 	return Object.keys(scheme).map(section => {
-		const { type, comps: schemeComps } = getComp(scheme[section])
-
+		const { type, comps: schemeComps, disabled } = getComp(scheme[section])
+		if (disabled) return
 		const comps = schemeComps
 			.map(scheme => {
 				const comp = getComp(scheme)
 				return getComponentFromScheme(comp)
 			})
 			.filter(Boolean)
-		return element`<div href="${section}">${comps}</div>`
+		return element`<div class="section" href="${section}">${comps}</div>`
 	})
 }
 
@@ -49,7 +50,7 @@ const getComponentFromScheme = comp => {
 					H4: Titles.h4,
 				},
 				addons: [lang(LanguageState)],
-			})`<H4 lang-string="${comp.label}"/>`
+			})`<H4 class="section" lang-string="${comp.label}"/>`
 		case 'switch':
 			function onSwitch(e) {
 				const newStatus = e.detail.status
@@ -106,22 +107,38 @@ const getComponentFromScheme = comp => {
 				addons: [lang(LanguageState)],
 			})`<Button :click="${onClick}" lang-string="${comp.label}"/>`
 		case 'section':
+			const sectionContent = comp.content
+				.map(el => {
+					return getComponentFromScheme(el)
+				})
+				.filter(Boolean)
+
 			return element({
 				components: {
 					Section,
 				},
 				addons: [lang(LanguageState)],
-			})`<Section>${comp.content
-				.map(el => {
-					return getComponentFromScheme(el)
-				})
-				.filter(Boolean)}</Section>`
+			})`<Section>${sectionContent}</Section>`
 		case 'text':
 			return element({
 				components: {
 					Text,
 				},
 				addons: [lang(LanguageState)],
-			})`<Text lang-string="${comp.label}"/>`
+			})`<Text class="section" lang-string="${comp.label}"/>`
+		case 'slider':
+			function onChanged(e) {
+				const value = e.detail.value
+				if (value !== StaticConfig.data[comp.key]) {
+					StaticConfig.data[comp.key] = value
+				}
+			}
+
+			return element({
+				components: {
+					Slider,
+				},
+				addons: [lang(LanguageState)],
+			})`<Slider :change="${onChanged}" min="${comp.min}" max="${comp.max}" step="${comp.step}" value="${comp.default}" class="section" data="${{ label: comp.label }}"/>`
 	}
 }

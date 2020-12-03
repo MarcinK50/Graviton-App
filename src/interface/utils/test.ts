@@ -5,11 +5,13 @@ import Dialog from 'Constructors/dialog'
 import Notification from 'Constructors/notification'
 import * as puffin from '@mkenzo_8/puffin'
 
+/*
+ * This file is mainly for testing purposes
+ * It exposes globally some Core Modules
+ */
+
 if (!RunningConfig.data.isBrowser) {
-	if (eval('window.process.env.NODE_ENV') !== 'test') {
-		console.log(RunningConfig)
-		console.log(StaticConfig)
-	} else {
+	if (eval('window.process.env.NODE_ENV') === 'test') {
 		// Expose API globally, so can be accessed from the tests file
 		;(window as any).test = {
 			RunningConfig,

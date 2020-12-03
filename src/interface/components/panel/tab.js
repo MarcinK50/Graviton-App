@@ -1,14 +1,14 @@
 import { element } from '@mkenzo_8/puffin'
-import { css as style } from 'emotion'
+import { css as style } from '@emotion/css'
 
 const styleWrapper = style`
 	&{
 		height:40px;
 		background:var(--tabBackground);
 		color:var(--tabText);
-		min-width: 150px;
-		width: 150px;
-		max-width: 150px;
+		min-width: 140px;
+		width: 140px;
+		max-width: 140px;
 		display:flex;
 		justify-content:flex-start;
 		align-items:center;

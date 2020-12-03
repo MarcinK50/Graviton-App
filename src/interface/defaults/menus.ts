@@ -7,9 +7,9 @@ import StaticConfig from 'StaticConfig'
 import About from './dialogs/about'
 import Notification from 'Constructors/notification'
 import openDebugClient from './debug.window'
-import packageJSON from 'Root/package.json'
 import checkForUpdates from '../utils/check.updates'
 import AppPlatform from 'AppPlatform'
+import BrowserWelcome from './windows/browser_welcome'
 import { openFolder, openFile } from 'FileSystem'
 import Core from 'Core'
 const {
@@ -79,13 +79,13 @@ function createMenus() {
 								}).launch()
 							},
 						},
-						{},
 						{
 							label: 'menus.File.Workspaces.OpenFromFile',
 							action: () => {
 								RunningConfig.emit('openWorkspaceDialog')
 							},
 						},
+						{},
 						{
 							label: 'menus.File.Workspaces.AddFolderToWorkspace',
 							action: () => {
@@ -220,16 +220,37 @@ function createMenus() {
 		button: 'menus.View.View',
 		list: [
 			{
-				label: 'menus.View.ToggleSidebar',
+				type: 'checkbox',
+				label: 'menus.View.Sidebar',
+				checked: StaticConfig.data.appEnableSidebar,
+				mounted({ setChecked }) {
+					StaticConfig.keyChanged('appEnableSidebar', value => {
+						setChecked(value)
+					})
+				},
 				action: () => (StaticConfig.data.appEnableSidebar = !StaticConfig.data.appEnableSidebar),
 			},
 			{
-				label: 'menus.View.ToggleSidepanel',
+				type: 'checkbox',
+				label: 'menus.View.Sidepanel',
+				checked: StaticConfig.data.appEnableSidepanel,
+				mounted({ setChecked }) {
+					StaticConfig.keyChanged('appEnableSidepanel', value => {
+						setChecked(value)
+					})
+				},
 				action: () => (StaticConfig.data.appEnableSidepanel = !StaticConfig.data.appEnableSidepanel),
 			},
 			{},
 			{
-				label: 'menus.View.ToggleTerminal',
+				type: 'checkbox',
+				label: 'menus.View.Terminal',
+				checked: StaticConfig.data.appShowTerminal,
+				mounted({ setChecked }) {
+					StaticConfig.keyChanged('appShowTerminal', value => {
+						setChecked(value)
+					})
+				},
 				action: () => (StaticConfig.data.appShowTerminal = !StaticConfig.data.appShowTerminal),
 			},
 		],
@@ -267,16 +288,22 @@ function createMenus() {
 					],
 				},
 				{},
-				{
-					label: 'menus.Window.Debug.Debug',
-					list: [
-						{
-							label: 'menus.Window.Debug.OpenDebugWindow',
-							action: () => openDebugClient(),
-						},
-					],
-				},
-				{},
+				(() => {
+					if (!RunningConfig.data.isDebug) {
+						return {
+							label: 'menus.Window.Debug.Debug',
+							list: [
+								{
+									label: 'menus.Window.Debug.OpenDebugWindow',
+									action: () => openDebugClient(),
+								},
+							],
+						}
+					}
+				})(),
+				(() => {
+					if (!RunningConfig.data.isDebug) return {}
+				})(),
 				{
 					label: 'menus.Window.OpenDevTools',
 					action: () => ipcRenderer.invoke('toggle-devtools'),
@@ -325,34 +352,21 @@ function getHelpMenu(button) {
 			},
 			{},
 			{
-				label: 'menus.Help.Contributors',
-				list: (() => {
-					return packageJSON.contributors.map(({ name, url }) => {
-						return {
-							label: name,
-							action() {
-								openExternal(url)
-							},
-						}
-					})
-				})(),
-			},
-			{
 				label: 'menus.Help.Blog',
 				action: () => {
-					openExternal('https://graviton.netlify.app/blog/')
+					openExternal('https://graviton.netlify.app/blog')
 				},
 			},
 			{
 				label: 'menus.Help.Documentation',
 				action: () => {
-					openExternal('https://github.com/Graviton-Code-Editor/Graviton-App/wiki')
+					openExternal('https://graviton.netlify.app/docs')
 				},
 			},
 			{
 				label: 'menus.Help.Website',
 				action: () => {
-					openExternal('https://graviton.netlify.app/')
+					openExternal('https://graviton.netlify.app')
 				},
 			},
 			{
@@ -379,6 +393,16 @@ function getHelpMenu(button) {
 									title: 'No updates found',
 								})
 							})
+						},
+					}
+				}
+			})(),
+			(() => {
+				if (isBrowser) {
+					return {
+						label: 'menus.Help.ShowWelcome',
+						action() {
+							BrowserWelcome().launch()
 						},
 					}
 				}

@@ -1,5 +1,5 @@
 import { state, element } from '@mkenzo_8/puffin'
-import { css as style } from 'emotion'
+import { css as style } from '@emotion/css'
 
 const ItemWrapper = style`
 	&{
@@ -7,7 +7,6 @@ const ItemWrapper = style`
 		white-space:nowrap;
 		padding:0px;
 		user-select:none;
-		margin-top:1px;
 		margin-left: 10px;
 		content-visibility: paint;
 		contain-intrinsic-size: 26px;

@@ -1,11 +1,11 @@
 interface DialogButton {
 	label: string
 	important?: boolean
-	action: object
+	action?: object
 }
 
 interface DialogOptions {
-	title: string
+	title?: string
 	content?: string
 	buttons: DialogButton[]
 	component?: any

@@ -9,17 +9,26 @@ const {
 } = Core
 import AppPlatform from 'AppPlatform'
 import RunningConfig from 'RunningConfig'
+import Tick from '../components/icons/tick'
 
 const createdMenus = []
 
-StaticConfig.keyChanged('appLanguage', () => {
-	if (AppPlatform !== 'win32' && !RunningConfig.data.isBrowser) {
+if (AppPlatform !== 'win32' && !RunningConfig.data.isBrowser) {
+	/*
+	 * Whenever the language is changed remove the native menubar and create a new one with the cached menus
+	 */
+	StaticConfig.keyChanged('appLanguage', () => {
 		ipcRenderer.send('destroy-menus', {})
-	}
-	createdMenus.map(m => new Menu(m, true))
-})
+		createdMenus.map(cachedMenu => new Menu(cachedMenu, true))
+	})
+}
 
-if (!RunningConfig.data.isBrowser) ipcRenderer.send('destroy-menus', {})
+if (!RunningConfig.data.isBrowser) {
+	/*
+	 * Remove the default menubar
+	 */
+	ipcRenderer.send('destroy-menus', {})
+}
 
 class Menu {
 	private MenuButton: String
@@ -29,13 +38,17 @@ class Menu {
 		this.MenuList = list.filter(Boolean)
 
 		if ((AppPlatform === 'win32' || RunningConfig.data.isBrowser) && !fromEvent) {
-			// Render Graviton's menu bar only in Windows
-			const menuComponent = this.getMenuComponent(button, this.MenuList)
+			/*
+			 * Display Graviton's DOM-based menus bar only in Windows
+			 */
+			const menuComponent = this.getDOMDropmenu(button, this.MenuList)
 			const dropmenusContainer = document.getElementById('dropmenus')
 			render(menuComponent, dropmenusContainer)
 		} else {
-			// Display native menu bar in MacOS and GNU/Linux distros
-			const nativeMenu = this.createNativeMenu(button, list)
+			/*
+			 * Display native menu bar in MacOS and GNU/Linux distributions
+			 */
+			const nativeMenu = this.getNativeDropmenu(button, this.MenuList)
 			this.appendToNativeBar(nativeMenu)
 			if (!fromEvent) {
 				createdMenus.push({
@@ -45,71 +58,30 @@ class Menu {
 			}
 		}
 	}
-
-	private closeAllSubmenus(parent) {
-		const subMenusOpened = Object.keys(parent.getElementsByClassName('submenu')).map(i => {
-			return parent.getElementsByClassName('submenu')[i]
-		})
-		subMenusOpened.map(element => {
-			element.remove()
-		})
-	}
-
-	private renderSubmenu(e, option) {
-		const submenuContainer = e.target.parentElement
-		const subMenuComponent = this.getMenuComponent(null, option.list, e.target.clientWidth + 10)
-		this.closeAllSubmenus(submenuContainer.parentElement)
-		render(subMenuComponent, submenuContainer)
-	}
-
-	private hideMenus(target) {
-		this.closeAllSubmenus(target.parentElement.parentElement)
-	}
-
-	private getDropmenu(list) {
-		return list.map((option, index) => {
-			if (option.label !== undefined) {
-				let computedLabel = option.label
-				if (typeof option.label === 'function') computedLabel = option.label()
-				const triggerAction = e => {
-					if (option.list) {
-						this.renderSubmenu(e, option)
-					} else {
-						this.hideMenus(e.target)
-					}
-				}
-				let dropmenuOption
-				if (option.list) {
-					dropmenuOption = element({
-						components: {
-							ArrowIcon,
-						},
-					})`<p lang-string="${computedLabel}"></p><ArrowIcon/>`
+	/*
+	 * DOM Dropmenu
+	 * Get the menu hooks
+	 */
+	private getMenuHooks(item, native = false) {
+		return {
+			setChecked(value) {
+				if (native) {
+					ipcRenderer.send('checkMenuItem', {
+						id: item,
+						checked: value,
+					})
 				} else {
-					dropmenuOption = element`<p lang-string="${computedLabel}"/>`
+					const tick = item.getElementsByClassName('tick')[0]
+					tick.style.display = value ? 'block' : 'none'
 				}
-				return element`
-				<div :click="${option.action}" >
-					<a :mouseenter="${triggerAction}" >
-						${dropmenuOption}
-					</a>
-				</div>`
-			} else {
-				return element`<div class="sep"/>`
-			}
-		})
-	}
-
-	private getDropmenuButton(isSubmenu, button) {
-		if (!isSubmenu) {
-			return element`
-				<button :mouseover="${e => this.hideMenus(e.target)}" :click="${e => this.hideMenus(e.target)}" lang-string="${button}" string="{{${button}}}"/>
-			`
+			},
 		}
-		return element` `
 	}
-
-	private getMenuComponent(button, list, leftMargin = 0) {
+	/*
+	 * DOM Dropmenu
+	 * Get the complete dropmenu component
+	 */
+	private getDOMDropmenu(button, list, leftMargin = 0) {
 		const isSubmenu = button == null && list != null
 		const data = {
 			isSubmenu,
@@ -121,43 +93,152 @@ class Menu {
 			addons: [lang(LanguageState)],
 		})`
 		<MenuComp class="${isSubmenu ? 'submenu' : ''}" data="${data}" style="${isSubmenu ? `position:absolute;margin-top:-20px;margin-left:${leftMargin}px;` : ''}">
-			${this.getDropmenuButton(isSubmenu, button)}
-			<div>${this.getDropmenu(list)}</div>
+			${this.getDOMDropmenuButton(isSubmenu, button)}
+			<div>${this.getDOMDropmenuList(list)}</div>
 		</MenuComp>
 		`
 	}
 	/*
-	 * Convert Graviton's menu to electron's Menu constructor
+	 * DOM Dropmenu
+	 * Get all buttons of a dropmenu
 	 */
-	private convertToElectronInterface(list) {
-		return list.map(btn => {
-			if (btn.label && btn.action) {
-				const id = Math.random()
-				ipcRenderer.on(`menu_${id}`, btn.action)
-				return {
-					label: lang.getTranslation(btn.label, LanguageState),
-					action: id,
-				}
-			} else if (btn.label && btn.list) {
-				return {
-					label: lang.getTranslation(btn.label, LanguageState),
-					submenu: this.convertToElectronInterface(btn.list),
-				}
-			} else {
-				return {
-					type: 'separator',
+	private getDOMDropmenuList(list) {
+		const self = this
+		return list.map((option, index) => {
+			if (!option.label) {
+				/*
+				 * Display a separator when no label is provided
+				 */
+				return element`<div class="sep"/>`
+			}
+			let { label, action, checked } = option
+
+			const triggerAction = (ev: MouseEvent) => {
+				if (option.list) {
+					this.renderDOMSubmenu(ev, option)
+				} else {
+					this.hideDOMMenu(ev.target)
 				}
 			}
+
+			let dropmenuOption
+
+			if (option.list) {
+				dropmenuOption = element({
+					components: {
+						ArrowIcon,
+					},
+				})`<p lang-string="${label}"></p><ArrowIcon class="arrow"/>`
+			} else {
+				dropmenuOption = element`<p lang-string="${label}"/>`
+			}
+
+			function mounted() {
+				option.mounted?.(self.getMenuHooks(this))
+			}
+
+			return element({
+				components: {
+					Tick,
+				},
+			})`
+				<div :click="${action}" mounted="${mounted}">
+					<a :mouseenter="${triggerAction}" >
+						<Tick class="tick" style="display: ${checked ? 'block' : 'none'}"/>
+						${dropmenuOption}
+					</a>
+				</div>`
 		})
 	}
-
-	private createNativeMenu(button, list) {
+	/*
+	 * DOM Dropmenu
+	 * Close all submenus
+	 */
+	private closeAllDOMSubmenus(parent) {
+		const subMenusOpened = Object.keys(parent.getElementsByClassName('submenu')).map(i => {
+			return parent.getElementsByClassName('submenu')[i]
+		})
+		subMenusOpened.map(element => {
+			element.remove()
+		})
+	}
+	/*
+	 * DOM Dropmenu
+	 * Render a submenu
+	 */
+	private renderDOMSubmenu(e, option) {
+		const submenuContainer = e.target.parentElement
+		const subMenuComponent = this.getDOMDropmenu(null, option.list, e.target.clientWidth + 10)
+		this.closeAllDOMSubmenus(submenuContainer.parentElement)
+		render(subMenuComponent, submenuContainer)
+	}
+	/*
+	 * DOM Dropmenu
+	 * Close/Hide an specific subemnu
+	 */
+	private hideDOMMenu(target) {
+		this.closeAllDOMSubmenus(target.parentElement.parentElement)
+	}
+	private getDOMDropmenuButton(isSubmenu, button) {
+		if (!isSubmenu) {
+			return element`
+				<button :mouseover="${e => this.hideDOMMenu(e.target)}" :click="${e => this.hideDOMMenu(e.target)}" lang-string="${button}" string="{{${button}}}"/>
+			`
+		}
+		return element` `
+	}
+	/*
+	 * Get Native Dropmenu
+	 */
+	private getNativeDropmenu(button, list) {
 		return {
 			label: lang.getTranslation(button, LanguageState),
-			submenu: this.convertToElectronInterface(list),
+			submenu: this.getNativeDropmenuList(list),
 		}
 	}
+	/*
+	 * Native
+	 * Convert Graviton's menu to Electron's Menu API
+	 */
+	private getNativeDropmenuList(list) {
+		return list
+			.map(option => {
+				if (!option) return
+				const { label, action, type, checked, list } = option
+				if (label && action) {
+					const id = Math.random()
 
+					ipcRenderer.on(`menuItemClicked`, (e, menuItem) => {
+						if (menuItem == id) {
+							action()
+						}
+					})
+
+					option.mounted?.(this.getMenuHooks(id, true))
+
+					return {
+						type,
+						label: lang.getTranslation(label, LanguageState),
+						id,
+						checked,
+					}
+				} else if (label && list) {
+					return {
+						label: lang.getTranslation(label, LanguageState),
+						submenu: this.getNativeDropmenuList(list),
+					}
+				} else {
+					return {
+						type: 'separator',
+					}
+				}
+			})
+			.filter(Boolean)
+	}
+	/*
+	 * Native
+	 * Append a dropmenu to the native menubar
+	 */
 	private appendToNativeBar(item) {
 		ipcRenderer.send('newMenuItem', item)
 	}

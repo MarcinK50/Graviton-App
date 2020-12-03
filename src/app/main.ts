@@ -3,24 +3,30 @@ import * as path from 'path'
 import { app, BrowserWindow, protocol } from 'electron'
 import isDev from 'electron-is-dev'
 import windowStateKeeper from 'electron-window-state'
-
-import './plugins_handler'
+import hasAnyValidArgument from './cli'
 import Store from './store_handler'
-import './debug_window'
-import WindowHandler from './window'
+import WindowHandler from './window_handler'
 import MenusHandler from './menus_handler'
+import TerminalHandler from './terminal_handler'
+import './plugins_handler'
+import './debug_window'
 
-let main
+app.whenReady().then(() => {
+	const anyValidArgument = hasAnyValidArgument()
+	if (anyValidArgument) {
+		process.exit(0)
+	} else {
+		createWindow()
+	}
+})
 
-app.setAsDefaultProtocolClient('graviton')
-
-app.on('ready', function () {
+function createWindow() {
 	protocol.registerFileProtocol('file', (request, callback) => {
 		const pathname = request.url.replace('file:///', '')
 		callback(pathname)
 	})
 
-	let mainWindowState = windowStateKeeper({
+	const mainWindowState = windowStateKeeper({
 		defaultWidth: 800,
 		defaultHeight: 600,
 	})
@@ -30,7 +36,7 @@ app.on('ready', function () {
 	const OS = (Store.get('config') as any).appPlatform
 	const isWindows = OS === 'win32' || (OS === 'auto' && process.platform === 'win32')
 
-	main = new BrowserWindow({
+	const window = new BrowserWindow({
 		webPreferences: {
 			nativeWindowOpen: true,
 			nodeIntegrationInWorker: true,
@@ -54,13 +60,14 @@ app.on('ready', function () {
 		icon: getAppIcon(),
 	})
 
-	mainWindowState.manage(main)
+	mainWindowState.manage(window)
+
 	if (isDev) {
-		main.loadURL('http://localhost:9000')
-		main.webContents.openDevTools()
+		window.loadURL('http://localhost:9000')
+		window.webContents.openDevTools()
 	} else {
-		main.removeMenu()
-		main.loadURL(
+		window.removeMenu()
+		window.loadURL(
 			url.format({
 				pathname: path.join(__dirname, '..', 'dist_ui', 'index.html'),
 				protocol: 'file:',
@@ -69,22 +76,23 @@ app.on('ready', function () {
 		)
 	}
 
-	main.on('ready-to-show', () => {
-		mainWindowState.manage(main)
-		main.show()
-		main.focus()
+	window.on('ready-to-show', () => {
+		window.show()
+		window.focus()
 	})
+
 	if (path.basename(path.join(__dirname, '..')) === 'Graviton-App') {
-		main.setMenuBarVisibility(true)
+		window.setMenuBarVisibility(true)
 	} else {
-		main.setMenuBarVisibility(false)
+		window.setMenuBarVisibility(false)
 	}
 
-	main.windowID = windowID
+	;(window as any).windowID = windowID
 
-	WindowHandler(main)
-	MenusHandler(main)
-})
+	WindowHandler(window)
+	MenusHandler(window)
+	TerminalHandler(window)
+}
 
 function getAppIcon() {
 	switch (process.platform) {
@@ -105,5 +113,7 @@ app.on('before-quit', () => {
 	app.removeAllListeners('close')
 })
 
+// Set Graviton as handler for protocol "graviton"
+app.setAsDefaultProtocolClient('graviton')
+// Disable chromium's smoot scrolling
 app.commandLine.appendSwitch('disable-smooth-scrolling', 'true')
-app.allowRendererProcessReuse = false

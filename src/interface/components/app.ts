@@ -1,5 +1,5 @@
 import { element } from '@mkenzo_8/puffin'
-import { css as style } from 'emotion'
+import { css as style } from '@emotion/css'
 
 const styleWrapper = style`
 		& > div{
@@ -34,6 +34,9 @@ const styleWrapper = style`
 			border-top-right-radius:  8px;
 			border-top:1px solid var(--panelBorder);
 			background:var(--sidebarBackground);
+			&::-webkit-scrollbar {
+				width: 4px;
+			}
 		}
 		#sidepanel{
 			border-top-right-radius:  8px;
@@ -44,7 +47,7 @@ const styleWrapper = style`
 			overflow:auto;
 			float: left;
 			left: 0;
-			padding: 10px;
+			padding: 10px 2px;
 			& > div{
 				height: 100%;
 			}

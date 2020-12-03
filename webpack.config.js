@@ -4,6 +4,8 @@ const CopyPlugin = require('copy-webpack-plugin')
 const WebpackMessages = require('webpack-messages')
 const WebpackBar = require('webpackbar')
 
+const PUBLIC_PATH = process.env.PUBLIC_PATH || '/'
+
 module.exports = [
 	{
 		name: 'renderer',
@@ -140,6 +142,7 @@ module.exports = [
 						<head>
 							<meta charset="UTF-8" />
 							<link rel="shortcut icon" type="image/svg" href="dist/logo.svg"/>
+							<meta name="viewport" content="initial-scale=1, maximum-scale=1">
 							<title>Graviton Editor</title>
 						</head>
 						<body>
@@ -173,6 +176,7 @@ module.exports = [
 							options: {
 								name: '[name].[ext]',
 								outputPath: 'dist/',
+								publicPath: PUBLIC_PATH,
 							},
 						},
 						{
@@ -221,10 +225,13 @@ module.exports = [
 			electron: 'empty',
 			rimraf: 'empty',
 			'node-json-lsp': 'empty',
+			'lsp-codemirror': 'empty',
+			'diff-match-patch': 'empty',
 		},
 		output: {
 			filename: 'main.js',
 			path: path.resolve(__dirname, 'dist_browser'),
+			publicPath: PUBLIC_PATH,
 		},
 		devServer: {
 			contentBase: path.join(__dirname, 'dist_browser'),
@@ -270,6 +277,7 @@ module.exports = [
 			],
 		},
 		target: 'electron-main',
+		externals: ['node-pty'],
 		output: {
 			filename: 'main.js',
 			path: path.resolve(__dirname, 'dist_main'),
@@ -310,7 +318,7 @@ module.exports = [
 			],
 		},
 		target: 'electron-main',
-		externals: ['fs-extra', 'electron', 'path'],
+		externals: ['fs-extra', 'electron', 'path', 'node-pty'],
 		output: {
 			filename: 'preload.js',
 			path: path.resolve(__dirname, 'dist_main'),

@@ -16,14 +16,18 @@ export default window => {
 		Menu.setApplicationMenu(NativeMenuBar)
 	})
 
+	ipcMain.on('checkMenuItem', (e, { id, checked }) => {
+		const item = NativeMenuBar.getMenuItemById(id)
+		item.checked = checked
+	})
+
 	ipcMain.on('destroy-menus', (e, props) => {
 		if (NativeMenuBar) NativeMenuBar.clear()
 	})
 
 	function parse(obj) {
-		let id = obj.action
 		obj.click = () => {
-			window.webContents.send(`menu_${id}`)
+			window.webContents.send('menuItemClicked', obj.id)
 		}
 		if (obj.submenu) {
 			obj.submenu.map(menu => {
@@ -32,4 +36,28 @@ export default window => {
 		}
 		return obj
 	}
+
+	ipcMain.on('newContextMenu', (e, scheme) => {
+		const NativeContextMenu = new Menu()
+		scheme.list.map(option => {
+			const item = new MenuItem(parse(option))
+			NativeContextMenu.append(item)
+		})
+
+		function closeMenu(e, scheme) {
+			NativeContextMenu.closePopup()
+
+			ipcMain.off('closeContextMenu', closeMenu)
+		}
+
+		const closeMenuListener = ipcMain.on('closeContextMenu', closeMenu)
+
+		NativeContextMenu.popup({
+			x: scheme.x,
+			y: scheme.y,
+			callback() {
+				window.webContents.send('contextMenuClosed', scheme.id)
+			},
+		})
+	})
 }

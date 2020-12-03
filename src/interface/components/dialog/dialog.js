@@ -1,5 +1,5 @@
 import { element } from '@mkenzo_8/puffin'
-import { css as style } from 'emotion'
+import { css as style } from '@emotion/css'
 
 const styleWrapper = style`
 	&{
@@ -14,12 +14,19 @@ const styleWrapper = style`
 		padding: 12px;
 		user-select: none;
 	}
+	& h2:empty{
+		display: none;
+	}
 	& > div:nth-child(1){
-		min-height: auto;	
+		min-height: auto;
 		flex: 1;
 		& > p {
 			margin-top:15px;
 			font-size: 13px;
+			&[isComponent="true"]{
+				margin:0;
+				padding:0;
+			}
 		}
 	}
 	& > div:nth-child(2){

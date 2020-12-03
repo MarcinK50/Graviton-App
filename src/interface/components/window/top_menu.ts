@@ -1,5 +1,5 @@
 import { element } from '@mkenzo_8/puffin'
-import { css as style } from 'emotion'
+import { css as style } from '@emotion/css'
 
 function moveToPage(page, buttons, pages) {
 	pages.map(function (contentPage) {
@@ -18,13 +18,6 @@ function moveToPage(page, buttons, pages) {
 	})
 }
 
-function moveToSection(search, sections, buttons, pages) {
-	const result = sections.filter(section => section.title && section.title.match(new RegExp(search, 'i')))[0]
-	if (result != null) {
-		moveToPage(result.page, buttons, pages)
-		result.element.scrollIntoView(false)
-	}
-}
 function mounted(a) {
 	const target = this
 	const defaultPage = target.getAttribute('default')
@@ -47,23 +40,6 @@ function mounted(a) {
 			}
 		})
 		.filter(Boolean)
-	const sections = pages
-		.map(page => {
-			return Object.keys(page.children).map(function (index) {
-				const section = page.children[index]
-				if (section.tagName == 'DIV') {
-					return {
-						title: section.getAttribute('href'),
-						page: page.getAttribute('href'),
-						element: section,
-					}
-				}
-			})
-		})
-		.flat()
-	target.searchBy = function (search) {
-		moveToSection(search, sections, buttons, pages)
-	}
 	moveToPage(defaultPage, buttons, pages)
 }
 
@@ -71,20 +47,18 @@ const styleWrapper = style`
 	& {
 		display:flex;
 		max-height:100%;
+		height: 100%;
 		flex:1;
 		overflow:hidden;
 		user-select:none;
 	}
 	& > div:nth-child(1){
-		background:var(--sidemenuBackground);
-		min-height:100%;
-		min-width:180px;
-		max-width:180px;
+		background: transparent;
 		display:flex;
-		flex-direction:column;
-		padding:20px;
+		flex-direction:row;
+		justify-content: center;
+		padding:3px 15px;
 		overflow:auto;
-		box-shadow:0px 0px 10px rgba(0,0,0,0.2);
 	}
 	& > div:nth-child(1) > h1 {
 		overflow:hidden;
@@ -99,29 +73,28 @@ const styleWrapper = style`
 		transition:0.04s;
 		display:block;
 		white-space:prewrap;
-		padding:7px 9px;
-		border-radius:6px;
-		background:var(--sidemenuButtonBackground);
+		padding:8px 12px;
+		border-radius:5px;
+		background:var(--topmenuButtonBackground);
 		color:var(--sidemenuButtonText);
-		margin:1px 0px;
+		margin:1px 2px;
 		font-size:13px;
+		height: 15px;
+		min-height: 15px;
 		&:hover:not(.active) {
 			transition:0.04s;
-			background:var(--sidemenuButtonHoveringBackground);
+			background:var(--topmenuButtonHoveringBackground);
 		}
 		&.active {
-			background:var(--sidemenuButtonActiveBackground);
-			color:var(--sidemenuButtonActiveText);
+			background:var(--topmenuButtonActiveBackground);
+			color:var(--topmenuButtonActiveText);
 		}
 	}
 	& > div:nth-child(2){
 		background:transparent;
-		min-height:auto;
-		max-height:100%;
-		width:auto;
-		height:auto;
 		overflow:auto;
-		padding:15px;
+		margin-top:5px;
+		padding: 5px;
 		flex:1;
 	}
 	& > div:nth-child(2) > div > div h4{
@@ -130,10 +103,10 @@ const styleWrapper = style`
 	}
 `
 
-function SideMenu() {
+function TopMenu() {
 	return element`
 		<div mounted="${mounted}" class="${styleWrapper}"/>
 	`
 }
 
-export default SideMenu
+export default TopMenu

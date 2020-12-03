@@ -67,7 +67,7 @@ class Tab {
 				Cross,
 			},
 		})`
-		<TabBody mounted="${mounted}" active="${() => this.tabState.data.active}"  draggable="true" classSelector="${this.classSelector}" class="${
+		<TabBody title="${title}" mounted="${mounted}" active="${() => this.tabState.data.active}"  draggable="true" classSelector="${this.classSelector}" class="${
 			this.classSelector
 		}" :dragstart="${startDrag}" :click="${focusTab}" :mouseover="${showCross}" :mouseleave="${hideCross}" :dragenter="${dragEnter}" :dragleave="${dragLeave}" :dragover="${dragOver}":drop="${onDropped}">
 			${this.itemIconSource ? element`<img class="tab-icon" src="${this.itemIconSource}"/>` : element`<div/>`}
@@ -148,7 +148,7 @@ class Tab {
 				})
 			}
 
-			unfocusTabs(this)
+			unfocusActiveTab(this.parentElement)
 
 			if (isEditor) {
 				self.tabState.on('editorCreated', ({ client: newClient, instance: newInstance }) => {
@@ -210,7 +210,9 @@ class Tab {
 		render(TabComp, panel.children[0])
 		self.tabState.data.bodyElement = render(TabEditorComp, panel.children[1])
 	}
-
+	/*
+	 * Remove the tab's DOM node
+	 */
 	private _removeElements() {
 		return new Promise(res => {
 			setTimeout(() => {
@@ -220,7 +222,9 @@ class Tab {
 			}, 135)
 		})
 	}
-
+	/*
+	 * Essential tab's listeners
+	 */
 	private _addListeners(): void {
 		const IconpackWatcher = RunningConfig.on('updatedIconpack', () => {
 			if (this.directory) {
@@ -237,7 +241,7 @@ class Tab {
 			if (this.tabState.data.active && justCreated === false) return
 			RunningConfig.data.focusedTab = this.tabElement
 			RunningConfig.data.focusedPanel = this.tabElement.parentElement.parentElement
-			if (!this.tabState.data.active) unfocusTabs(this.tabElement)
+			if (!this.tabState.data.active) unfocusActiveTab(this.tabElement.parentElement)
 			RunningConfig.emit('aTabHasBeenFocused', {
 				tabElement: this.tabElement,
 				directory: this.directory,
@@ -356,11 +360,15 @@ class Tab {
 			})
 		})
 	}
-
+	/*
+	 * Change the cross's opacity
+	 */
 	private _toggleCross(target: HTMLElement, state: number): void {
 		target.style.opacity = state.toString()
 	}
-
+	/*
+	 * Mark as un/saved the tab
+	 */
 	private _toggleTabStatus(newStatus: boolean): void {
 		const tabCrossIcon = <PuffinElement>this.tabElement.getElementsByClassName('tab-cross')[0]
 		const tabSaveIcon = this.tabElement.getElementsByClassName('tab-save')[0]
@@ -397,6 +405,9 @@ class Tab {
 			render(comp, this.tabElement.children[2])
 		}
 	}
+	/*
+	 * Save the tab's content
+	 */
 	private saveTab(callback) {
 		if (this.directory) {
 			const { client, instance } = this
@@ -413,17 +424,21 @@ class Tab {
 		}
 	}
 }
-
-function unfocusTabs(tab): void {
-	const tabsBar = tab.parentElement
+/*
+ * Unfocus all tabs except the active one
+ */
+function unfocusActiveTab(tabsBar): void {
 	const tabsBarChildren = tabsBar.children
 	for (let otherTab of tabsBarChildren) {
-		if (otherTab != tab) {
+		if (otherTab.state.data.active) {
 			otherTab.state.emit('unfocusedMe')
 		}
 	}
 }
 
+/*
+ * Get all opened tabs in a specific tab's bar
+ */
 function getOpenedTabs(tabsBar: HTMLElement, tab = null) {
 	return Object.keys(tabsBar.children)
 		.map(e => {
@@ -434,20 +449,24 @@ function getOpenedTabs(tabsBar: HTMLElement, tab = null) {
 		.filter(Boolean)
 }
 
+/*
+ * Focus an specific tab
+ */
 function focusATab(fromTab: PuffinElement): void {
 	const tabsBar = fromTab.parentElement
 	const tabsBarChildren = getOpenedTabs(tabsBar) //Get opened tabs in the current focused panel
-	const fromTabPosition = guessTabPosition(fromTab, tabsBar) //Get the current focused tab position
-	const focusedTabPosition = guessTabPosition(RunningConfig.data.focusedTab, tabsBar)
-	if (focusedTabPosition === 0) {
-		if (fromTabPosition < tabsBarChildren.length) {
-			;(tabsBarChildren[fromTabPosition] as PuffinElement).state.emit('focusedMe')
-		} else if (tabsBarChildren.length === 1) {
+	const fromTabPosition = guessTabPosition(fromTab, tabsBar) //Get the closed tab position
+	const focusedTabPosition = guessTabPosition(RunningConfig.data.focusedTab, tabsBar) //Get the current focused tab position
+
+	if (focusedTabPosition === tabsBarChildren.length && fromTabPosition !== 0) {
+		;(tabsBarChildren[focusedTabPosition - 1] as PuffinElement).state.emit('focusedMe')
+	} else {
+		if (tabsBarChildren.length === 0) {
 			RunningConfig.data.focusedTab = null
 			RunningConfig.data.focusedEditor = null
+		} else if (focusedTabPosition >= 0) {
+			;(tabsBarChildren[focusedTabPosition] as PuffinElement).state.emit('focusedMe')
 		}
-	} else if ((focusedTabPosition !== 0 && fromTabPosition == focusedTabPosition) || focusedTabPosition == tabsBarChildren.length) {
-		;(tabsBarChildren[fromTabPosition - 1] as PuffinElement).state.emit('focusedMe')
 	}
 }
 

@@ -44,13 +44,13 @@
 			},
 			"View": {
 				"View": "View",
-				"ToggleSidebar": "Toggle Sidebar",
-				"ToggleSidepanel": "Toggle Sidepanel",
+				"Sidebar": "Sidebar",
+				"Sidepanel": "Sidepanel",
+				"Terminal": "Terminal",
 				"ShowSidebar": "Show Sidebar",
 				"ShowSidepanel": "Show Sidepanel",
 				"HideSidebar": "Hide Sidebar",
-				"HideSidepanel": "Hide Sidepanel",
-				"ToggleTerminal": "Toggle Terminal"
+				"HideSidepanel": "Hide Sidepanel"
 			},
 			"Window": {
 				"Window": "Window",
@@ -77,6 +77,7 @@
 				"SourceCode": "Source code",
 				"ReportBug": "Report bug",
 				"CheckForUpdates": "Check for updates",
+				"ShowWelcome": "Show Welcome",
 				"About": "About"
 			}
 		},
@@ -142,9 +143,14 @@
 				"NewProject": "New project",
 				"OpenWorkspace": "Open a workspace",
 				"OpenFolder": "Open a folder"
+			},
+			"BrowserWelcome": {
+				"WelcomeTitle": "Welcome to Graviton for Browser!",
+				"WelcomeMessage": "Remember this is still very experimental and most things do not work. \n For a better experience download the desktop app."
 			}
 		},
 		"misc": {
+			"Miscellaneous": "Miscellaneous",
 			"LastVersion": "Last version",
 			"InstalledVersion": "Installed version",
 			"About": "About",
@@ -172,7 +178,9 @@
 			"Close": "Close",
 			"Ignore": "Ignore",
 			"BuildDate": "Build date",
-			"By": "by"
+			"By": "by",
+			"Understood": "Understood",
+			"RemoveFromWorkspace": "Remove from workspace"
 		},
 		"notifications": {
 			"appLanguageChanged": {
@@ -187,7 +195,11 @@
 			},
 			"restartConfig": {
 				"title": "Restart configuration",
-				"content": "Click continue to restart your configuration."
+				"content": "Click continue to restart your configuration. This will not uninstall any plugin."
+			},
+			"experimentalFeature": {
+				"title": "Experimental feature",
+				"content": "This feature is unstable and might cause some issues."
 			}
 		}
 	}
